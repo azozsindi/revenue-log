@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سجل إيرادات ذات قروب</title>
+  <style>
+    :root{
+      --mauve:#8a63d2;
+      --mauve-50:#f5f1ff;
+      --mauve-100:#ebe4ff;
+      --ink:#1f2330;
+      --muted:#6b7280;
+      --white:#ffffff;
+      --shadow:0 4px 12px rgba(31,35,48,0.08);
+      --radius:12px;
+      --positive:#16a34a;
+      --negative:#dc2626;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family: 'Arial', sans-serif; background:var(--mauve-50); color:var(--ink); line-height:1.6;}
+    .container{max-width:1200px; margin:32px auto; padding:0 16px;}
+    header{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:24px;}
+    h1{margin:0; font-size:26px; font-weight:800; color:var(--mauve);}
+    .subtitle{color:var(--muted); font-size:15px; margin-top:4px}
+    .company-info {
+      background: var(--white);
+      border: 1px solid var(--mauve-100);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: right;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .company-info strong {
+      color: var(--mauve);
+      font-size: 14px;
+    }
+    .card{background:var(--white); border:1px solid var(--mauve-100); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:24px;}
+    form{display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px;}
+    .field{display:flex; flex-direction:column; gap:6px;}
+    label{font-size:13px; color:var(--muted); font-weight:500;}
+    input,select,button{padding:8px 10px; border:1px solid var(--mauve-100); border-radius:8px; font-size:14px;}
+    button{background:var(--mauve); color:var(--white); border:none; cursor:pointer; transition:0.3s;}
+    button:hover{background:#754cc2;}
+    table{width:100%; margin-top:16px; border-collapse:collapse; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
+    th{background:var(--mauve); color:var(--white); font-weight:600; padding:10px;}
+    td{border:1px solid #eee; padding:8px; text-align:center; font-size:14px; background:#fff;}
+    tr:nth-child(even) td{background:#faf8ff;}
+    .summary{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:40px; margin-top:20px; font-weight:600;}
+    .actions{display:flex; gap:10px; margin-top:12px;}
+    .actions select,.actions button{min-width:100px;}
+    .highlight{font-weight:700;}
+    .positive{color:var(--positive);}
+    .negative{color:var(--negative);}
+    .filter-section {
+      background: var(--white);
+      border: 1px solid var(--mauve-100);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .filter-section h3 {
+      margin-top: 0;
+      color: var(--mauve);
+    }
+    .filter-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .delete-section {
+      background: var(--white);
+      border: 1px solid var(--mauve-100);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .delete-section button {
+      background: var(--negative);
+      margin-top: 10px;
+    }
+    .delete-section button:hover {
+      background: #b91c1c;
+    }
+    .date-filter {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .date-filter input {
+      width: 150px;
+    }
+    
+    /* تنسيقات الطباعة */
+    @media print {
+      .actions, #entryForm, #pdfBtn, .filter-section, .delete-section, .summary {
+        display: none !important;
+      }
+      .container {
+        margin: 0;
+        max-width: none;
+        padding: 0;
+      }
+      body {
+        background: white;
+        font-size: 12px;
+      }
+      .company-info {
+        margin-bottom: 10px;
+        padding: 10px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      .subtitle {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      table {
+        font-size: 10px;
+        margin-top: 10px;
+      }
+      th, td {
+        padding: 4px;
+      }
+      header {
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- معلومات الشركة -->
+    <div class="company-info">
+      <div><strong id="companyNameLabel">اسم الشركة:</strong> CARE4UKSA</div>
+      <div><strong id="vatLabel">الرقم الضريبي:</strong> 312062312200003</div>
+      <div><strong id="contactLabel">رقم التواصل:</strong> 920015357</div>
+    </div>
+
+    <header>
+      <div>
+        <h1 id="mainTitle">سجل إيرادات ذات قروب</h1>
+        <div class="subtitle" id="subtitle">إدارة الإيرادات والمستحقات</div>
+      </div>
+      <div class="actions">
+        <select id="langSelect">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
+        <button id="printBtn">طباعة</button>
+        <button id="pdfBtn">تصدير PDF</button>
+      </div>
+    </header>
+
+    <!-- قسم الفلترة -->
+    <div class="filter-section">
+      <h3 id="filterTitle">فلترة البيانات</h3>
+      <div class="filter-controls">
+        <div class="field">
+          <label for="filterName" id="lblFilterName">اسم العميل</label>
+          <input type="text" id="filterName" placeholder="ابحث باسم العميل" />
+        </div>
+        <div class="field">
+          <label for="filterDateFrom" id="lblFilterDateFrom">من تاريخ</label>
+          <input type="date" id="filterDateFrom" />
+        </div>
+        <div class="field">
+          <label for="filterDateTo" id="lblFilterDateTo">إلى تاريخ</label>
+          <input type="date" id="filterDateTo" />
+        </div>
+        <div class="field" style="align-self:end;">
+          <button id="applyFilterBtn" type="button" id="btnApplyFilter">تطبيق الفلترة</button>
+        </div>
+        <div class="field" style="align-self:end;">
+          <button id="clearFilterBtn" type="button" id="btnClearFilter">إعادة تعيين</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- قسم الحذف -->
+    <div class="delete-section">
+      <h3 id="deleteTitle">حذف البيانات</h3>
+      <p id="deleteInfo">هل تريد حذف جميع السجلات؟</p>
+      <button id="deleteAllBtn" type="button" id="btnDeleteAll">حذف الكل</button>
+    </div>
+
+    <section class="card">
+      <form id="entryForm">
+        <div class="field">
+          <label for="nationalId" id="lblNationalId">رقم الهوية</label>
+          <input name="nationalId" id="nationalId" required />
+        </div>
+        <div class="field">
+          <label for="fullName" id="lblFullName">الاسم</label>
+          <input name="fullName" id="fullName" required />
+        </div>
+        <div class="field">
+          <label for="phone" id="lblPhone">رقم الجوال</label>
+          <input name="phone" id="phone" />
+        </div>
+        <div class="field">
+          <label for="nationality" id="lblNationality">الجنسية</label>
+          <input name="nationality" id="nationality" />
+        </div>
+        <div class="field">
+          <label for="gender" id="lblGender">الجنس</label>
+          <select name="gender" id="gender">
+            <option value="male" id="optMale">ذكر</option>
+            <option value="female" id="optFemale">أنثى</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dob" id="lblDob">تاريخ الميلاد</label>
+          <input type="date" name="dob" id="dob" required />
+        </div>
+        <div class="field">
+          <label for="serviceType" id="lblServiceType">نوع الخدمة</label>
+          <input name="serviceType" id="serviceType" />
+        </div>
+        <div class="field">
+          <label for="note" id="lblNote">ملاحظات</label>
+          <input name="note" id="note" />
+        </div>
+        <div class="field">
+          <label for="addedDate" id="lblAddedDate">تاريخ الإضافة</label>
+          <input type="text" name="addedDate" id="addedDate" readonly />
+        </div>
+        <div class="field">
+          <label for="amount" id="lblAmount">المبلغ</label>
+          <input type="number" name="amount" id="amount" required step="0.01" />
+        </div>
+        <div class="field">
+          <label for="care4uPay" id="lblCare4uPay">الدفع في CARE4U</label>
+          <input type="number" name="care4uPay" id="care4uPay" value="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="thaatPay" id="lblThaatPay">الدفع في Thaat</label>
+          <input type="number" name="thaatPay" id="thaatPay" value="0" step="0.01" />
+        </div>
+        <div class="field" style="align-self:end;">
+          <button id="submitBtn" type="submit">إضافة</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <table id="entriesTable">
+        <thead>
+          <tr>
+            <th id="thIndex">#</th>
+            <th id="thNationalId">رقم الهوية</th>
+            <th id="thFullName">الاسم</th>
+            <th id="thPhone">رقم الجوال</th>
+            <th id="thNationality">الجنسية</th>
+            <th id="thGender">الجنس</th>
+            <th id="thDob">تاريخ الميلاد</th>
+            <th id="thServiceType">نوع الخدمة</th>
+            <th id="thNote">ملاحظات</th>
+            <th id="thAddedDate">تاريخ الإضافة</th>
+            <th id="thAmount">المبلغ</th>
+            <th id="thCare4uPay">الدفع في CARE4U</th>
+            <th id="thThaatPay">الدفع في Thaat</th>
+            <th id="thActions">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="summary">
+        <div><span id="lblTotal">المجموع</span>: <span id="total">0.00</span></div>
+        <div><span id="lblTotalCare4u">إجمالي CARE4U</span>: <span id="totalCare4u">0.00</span></div>
+        <div><span id="lblTotalThaat">إجمالي Thaat</span>: <span id="totalThaat">0.00</span></div>
+        <div><span id="lblBalance">الرصيد المستحق</span>: <span id="balance" class="highlight">0.00</span></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const tableBody = document.querySelector('#entriesTable tbody');
+    const form = document.getElementById('entryForm');
+    const totalEl = document.getElementById('total');
+    const totalCare4uEl = document.getElementById('totalCare4u');
+    const totalThaatEl = document.getElementById('totalThaat');
+    const balanceEl = document.getElementById('balance');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const printBtn = document.getElementById('printBtn');
+    const langSelect = document.getElementById('langSelect');
+    const addedDateInput = document.getElementById('addedDate');
+    const filterName = document.getElementById('filterName');
+    const filterDateFrom = document.getElementById('filterDateFrom');
+    const filterDateTo = document.getElementById('filterDateTo');
+    const applyFilterBtn = document.getElementById('applyFilterBtn');
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    let list = [];
+    let currentLang = 'ar';
+
+    // بيانات الترجمة
+    const translations = {
+      ar: {
+        mainTitle: "سجل إيرادات ذات قروب",
+        subtitle: "إدارة الإيرادات والمستحقات",
+        companyNameLabel: "اسم الشركة:",
+        vatLabel: "الرقم الضريبي:",
+        contactLabel: "رقم التواصل:",
+        lblNationalId: "رقم الهوية",
+        lblFullName: "الاسم",
+        lblPhone: "رقم الجوال",
+        lblNationality: "الجنسية",
+        lblGender: "الجنس",
+        lblDob: "تاريخ الميلاد",
+        lblServiceType: "نوع الخدمة",
+        lblNote: "ملاحظات",
+        lblAddedDate: "تاريخ الإضافة",
+        lblAmount: "المبلغ",
+        lblCare4uPay: "الدفع في CARE4U",
+        lblThaatPay: "الدفع في Thaat",
+        optMale: "ذكر",
+        optFemale: "أنثى",
+        thIndex: "#",
+        thNationalId: "رقم الهوية",
+        thFullName: "الاسم",
+        thPhone: "رقم الجوال",
+        thNationality: "الجنسية",
+        thGender: "الجنس",
+        thDob: "تاريخ الميلاد",
+        thServiceType: "نوع الخدمة",
+        thNote: "ملاحظات",
+        thAddedDate: "تاريخ الإضافة",
+        thAmount: "المبلغ",
+        thCare4uPay: "الدفع في CARE4U",
+        thThaatPay: "الدفع في Thaat",
+        thActions: "الإجراءات",
+        lblTotal: "المجموع",
+        lblTotalCare4u: "إجمالي CARE4U",
+        lblTotalThaat: "إجمالي Thaat",
+        lblBalance: "الرصيد المستحق",
+        printBtn: "طباعة",
+        pdfBtn: "تصدير PDF",
+        submitBtn: "إضافة",
+        filterTitle: "فلترة البيانات",
+        lblFilterName: "اسم العميل",
+        lblFilterDateFrom: "من تاريخ",
+        lblFilterDateTo: "إلى تاريخ",
+        btnApplyFilter: "تطبيق الفلترة",
+        btnClearFilter: "إعادة تعيين",
+        deleteTitle: "حذف البيانات",
+        deleteInfo: "هل تريد حذف جميع السجلات؟",
+        btnDeleteAll: "حذف الكل",
+        deleteConfirm: "هل أنت متأكد من حذف جميع السجلات؟",
+        deleteSuccess: "تم حذف جميع السجلات بنجاح",
+        noResults: "لا توجد نتائج مطابقة"
+      },
+      en: {
+        mainTitle: "That Group Revenue Log",
+        subtitle: "Revenue and Balance Management",
+        companyNameLabel: "Company Name:",
+        vatLabel: "VAT Number:",
+        contactLabel: "Contact Number:",
+        lblNationalId: "National ID",
+        lblFullName: "Name",
+        lblPhone: "Phone Number",
+        lblNationality: "Nationality",
+        lblGender: "Gender",
+        lblDob: "Date of Birth",
+        lblServiceType: "Service Type",
+        lblNote: "Notes",
+        lblAddedDate: "Added Date",
+        lblAmount: "Amount",
+        lblCare4uPay: "Paid at CARE4U",
+        lblThaatPay: "Paid at Thaat",
+        optMale: "Male",
+        optFemale: "Female",
+        thIndex: "#",
+        thNationalId: "National ID",
+        thFullName: "Name",
+        thPhone: "Phone",
+        thNationality: "Nationality",
+        thGender: "Gender",
+        thDob: "Date of Birth",
+        thServiceType: "Service Type",
+        thNote: "Notes",
+        thAddedDate: "Added Date",
+        thAmount: "Amount",
+        thCare4uPay: "Paid at CARE4U",
+        thThaatPay: "Paid at Thaat",
+        thActions: "Actions",
+        lblTotal: "Total",
+        lblTotalCare4u: "Total CARE4U",
+        lblTotalThaat: "Total Thaat",
+        lblBalance: "Balance Due",
+        printBtn: "Print",
+        pdfBtn: "Export PDF",
+        submitBtn: "Add",
+        filterTitle: "Filter Data",
+        lblFilterName: "Customer Name",
+        lblFilterDateFrom: "From Date",
+        lblFilterDateTo: "To Date",
+        btnApplyFilter: "Apply Filter",
+        btnClearFilter: "Reset",
+        deleteTitle: "Delete Data",
+        deleteInfo: "Do you want to delete all records?",
+        btnDeleteAll: "Delete All",
+        deleteConfirm: "Are you sure you want to delete all records?",
+        deleteSuccess: "All records deleted successfully",
+        noResults: "No matching results found"
+      }
+    };
+
+    // تحميل البيانات من localStorage عند بدء التشغيل
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem('revenueLogData');
+      if (savedData) {
+        try {
+          list = JSON.parse(savedData);
+          // حذف البيانات التي مر عليها أكثر من 10 أيام
+          const tenDaysAgo = new Date();
+          tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+          
+          list = list.filter(item => {
+            const itemDate = new Date(item.addedDate);
+            return itemDate >= tenDaysAgo;
+          });
+          
+          saveToLocalStorage(); // حفظ البيانات بعد الفلترة
+          render();
+        } catch (e) {
+          console.error('Error loading data', e);
+        }
+      }
+    }
+
+    // حفظ البيانات في localStorage
+    function saveToLocalStorage() {
+      localStorage.setItem('revenueLogData', JSON.stringify(list));
+    }
+
+    // تعيين تاريخ الإضافة عند تحميل الصفحة
+    addedDateInput.value = getToday();
+
+    function getToday() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatGender(g) {
+      if (g === 'male') return currentLang === 'ar' ? 'ذكر' : 'Male';
+      if (g === 'female') return currentLang === 'ar' ? 'أنثى' : 'Female';
+      return '';
+    }
+
+    // تحديث اللغة
+    function updateLanguage() {
+      const trans = translations[currentLang];
+      
+      // تحديث جميع العناصر
+      Object.keys(trans).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+          element.textContent = trans[key];
+        }
+      });
+      
+      // تحديث خيارات القائمة المنسدلة
+      const options = document.querySelectorAll('option');
+      options.forEach(option => {
+        const optionValue = option.value;
+        if (optionValue === 'male') {
+          option.textContent = trans.optMale;
+        } else if (optionValue === 'female') {
+          option.textContent = trans.optFemale;
+        }
+      });
+      
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    }
+
+    // عرّف الحدث بشكل صحيح لإضافة السجل
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      data.amount = parseFloat(data.amount || 0);
+      data.care4uPay = parseFloat(data.care4uPay || 0);
+      data.thaatPay = parseFloat(data.thaatPay || 0);
+      data.addedDate = getToday();
+      list.push(data);
+      saveToLocalStorage(); // حفظ البيانات
+      render();
+      form.reset();
+      addedDateInput.value = getToday();
+    });
+
+    // حذف سجل معين
+    function deleteRecord(index) {
+      if (confirm(translations[currentLang].deleteConfirm)) {
+        list.splice(index, 1);
+        saveToLocalStorage();
+        render();
+      }
+    }
+
+    // تعديل سجل
+    function editRecord(index) {
+      const record = list[index];
+      
+      // استخراج القيم
+      document.getElementById('nationalId').value = record.nationalId;
+      document.getElementById('fullName').value = record.fullName;
+      document.getElementById('phone').value = record.phone;
+      document.getElementById('nationality').value = record.nationality;
+      document.getElementById('gender').value = record.gender;
+      document.getElementById('dob').value = record.dob;
+      document.getElementById('serviceType').value = record.serviceType;
+      document.getElementById('note').value = record.note;
+      document.getElementById('amount').value = record.amount;
+      document.getElementById('care4uPay').value = record.care4uPay;
+      document.getElementById('thaatPay').value = record.thaatPay;
+      
+      // حذف السجل الحالي من القائمة
+      list.splice(index, 1);
+      saveToLocalStorage();
+      
+      // تحديث الزر لتحويله إلى "تحديث"
+      document.getElementById('submitBtn').textContent = translations[currentLang].submitBtn;
+      document.getElementById('submitBtn').onclick = function() {
+        // الحصول على القيم الجديدة
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        data.amount = parseFloat(data.amount || 0);
+        data.care4uPay = parseFloat(data.care4uPay || 0);
+        data.thaatPay = parseFloat(data.thaatPay || 0);
+        data.addedDate = record.addedDate; // الحفاظ على تاريخ الإضافة الأصلي
+        
+        // إضافة السجل المُحدّث
+        list.splice(index, 0, data);
+        saveToLocalStorage();
+        render();
+        
+        // إعادة تعيين النموذج والزر
+        form.reset();
+        addedDateInput.value = getToday();
+        document.getElementById('submitBtn').textContent = translations[currentLang].submitBtn;
+        document.getElementById('submitBtn').onclick = function(e) {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          data.amount = parseFloat(data.amount || 0);
+          data.care4uPay = parseFloat(data.care4uPay || 0);
+          data.thaatPay = parseFloat(data.thaatPay || 0);
+          data.addedDate = getToday();
+          list.push(data);
+          saveToLocalStorage();
+          render();
+          form.reset();
+          addedDateInput.value = getToday();
+        };
+      };
+    }
+
+    // حذف جميع السجلات
+    deleteAllBtn.addEventListener('click', function() {
+      if (confirm(translations[currentLang].deleteConfirm)) {
+        list = [];
+        saveToLocalStorage();
+        render();
+        alert(translations[currentLang].deleteSuccess);
+      }
+    });
+
+    // تطبيق الفلترة
+    function applyFilter() {
+      const nameFilter = filterName.value.toLowerCase();
+      const dateFrom = filterDateFrom.value;
+      const dateTo = filterDateTo.value;
+      
+      let filteredList = list;
+      
+      // تطبيق فلترة الاسم
+      if (nameFilter) {
+        filteredList = filteredList.filter(item => 
+          item.fullName.toLowerCase().includes(nameFilter) ||
+          item.nationalId.includes(nameFilter)
+        );
+      }
+      
+      // تطبيق فلترة التاريخ
+      if (dateFrom) {
+        filteredList = filteredList.filter(item => item.addedDate >= dateFrom);
+      }
+      
+      if (dateTo) {
+        filteredList = filteredList.filter(item => item.addedDate <= dateTo);
+      }
+      
+      renderFiltered(filteredList);
+    }
+
+    // إعادة تعيين الفلترة
+    function clearFilter() {
+      filterName.value = '';
+      filterDateFrom.value = '';
+      filterDateTo.value = '';
+      render();
+    }
+
+    // عرض البيانات المفلترة
+    function renderFiltered(filteredList) {
+      tableBody.innerHTML = '';
+      let total = 0, careTotal = 0, thaatTotal = 0;
+      
+      if (filteredList.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="14" style="text-align:center; font-weight:bold;">${translations[currentLang].noResults}</td>`;
+        tableBody.appendChild(tr);
+        totalEl.textContent = '0.00';
+        totalCare4uEl.textContent = '0.00';
+        totalThaatEl.textContent = '0.00';
+        balanceEl.textContent = '0.00';
+        return;
+      }
+      
+      filteredList.forEach((r, i) => {
+        total += r.amount;
+        careTotal += r.care4uPay;
+        thaatTotal += r.thaatPay;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td>
+          <td>${r.nationalId || ''}</td>
+          <td>${r.fullName || ''}</td>
+          <td>${r.phone || ''}</td>
+          <td>${r.nationality || ''}</td>
+          <td>${formatGender(r.gender)}</td>
+          <td>${r.dob || ''}</td>
+          <td>${r.serviceType || ''}</td>
+          <td>${r.note || ''}</td>
+          <td>${r.addedDate || ''}</td>
+          <td>${r.amount.toFixed(2)}</td>
+          <td>${r.care4uPay.toFixed(2)}</td>
+          <td>${r.thaatPay.toFixed(2)}</td>
+          <td>
+            <button onclick="editRecord(${list.indexOf(r)})" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">تعديل</button>
+            <button onclick="deleteRecord(${list.indexOf(r)})" style="background:red; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">حذف</button>
+          </td>`;
+        tableBody.appendChild(tr);
+      });
+      
+      totalEl.textContent = total.toFixed(2);
+      totalCare4uEl.textContent = careTotal.toFixed(2);
+      totalThaatEl.textContent = thaatTotal.toFixed(2);
+      
+      // الحساب الصحيح للرصيد المستحق
+      // الرصيد المستحق = المجموع - المبالغ المدفوعة في CARE4U
+      const balance = total - careTotal;
+      balanceEl.textContent = balance.toFixed(2);
+      
+      // تغيير اللون حسب القيمة
+      balanceEl.className = 'highlight';
+      if (balance > 0) {
+        balanceEl.classList.add('positive'); // موجب = أموال مطلوبة منك (اللون الأخضر)
+        balanceEl.classList.remove('negative');
+      } else if (balance < 0) {
+        balanceEl.classList.add('negative'); // سالب = أموال مطلوبة منك (اللون الأحمر)
+        balanceEl.classList.remove('positive');
+      } else {
+        balanceEl.classList.remove('positive', 'negative');
+      }
+    }
+
+    function render() {
+      renderFiltered(list);
+    }
+
+    // إضافة دعم للطباعة
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    // إضافة دعم لتصدير PDF (بدون مكتبات خارجية)
+    pdfBtn.addEventListener('click', () => {
+      alert('For PDF export, you need to install jspdf library. This demo works only in full environment.');
+    });
+
+    // تغيير اللغة
+    langSelect.addEventListener('change', () => {
+      currentLang = langSelect.value;
+      updateLanguage();
+    });
+
+    // أحداث الفلترة
+    applyFilterBtn.addEventListener('click', applyFilter);
+    clearFilterBtn.addEventListener('click', clearFilter);
+    
+    // تطبيق الفلترة عند كتابة اسم العميل
+    filterName.addEventListener('input', applyFilter);
+
+    // تحميل البيانات عند بدء التشغيل
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromLocalStorage(); // تحميل البيانات
+      updateLanguage(); // تطبيق اللغة الافتراضية
+    });
+  </script>
+</body>
+</html>
