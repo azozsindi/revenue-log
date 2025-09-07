@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سجل إيرادات ذات قروب</title>
+  <title>سجل إيرادات ذات قروب - CARE4UKSA</title>
   <style>
     :root{
       --mauve:#8a63d2;
@@ -239,7 +239,7 @@
         </div>
         <div class="field">
           <label for="addedDate" id="lblAddedDate">تاريخ الإضافة</label>
-          <input type="text" name="addedDate" id="addedDate" readonly />
+          <input type="date" name="addedDate" id="addedDate" required />
         </div>
         <div class="field">
           <label for="amount" id="lblAmount">المبلغ</label>
@@ -451,7 +451,7 @@
       localStorage.setItem('revenueLogData', JSON.stringify(list));
     }
 
-    // تعيين تاريخ الإضافة عند تحميل الصفحة
+    // تعيين تاريخ اليوم كقيمة افتراضية (قابلة للتعديل)
     addedDateInput.value = getToday();
 
     function getToday() {
@@ -495,7 +495,7 @@
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     }
 
-    // عرّف الحدث بشكل صحيح لإضافة السجل
+    // إضافة سجل جديد
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const formData = new FormData(form);
@@ -503,12 +503,12 @@
       data.amount = parseFloat(data.amount || 0);
       data.care4uPay = parseFloat(data.care4uPay || 0);
       data.thaatPay = parseFloat(data.thaatPay || 0);
-      data.addedDate = getToday();
+      // التاريخ يتم اختياره من قبل المستخدم، لا يتم تعيينه تلقائيًا
       list.push(data);
-      saveToLocalStorage(); // حفظ البيانات
+      saveToLocalStorage();
       render();
       form.reset();
-      addedDateInput.value = getToday();
+      addedDateInput.value = getToday(); // إعادة تعيين التاريخ إلى اليوم
     });
 
     // حذف سجل معين
@@ -524,7 +524,7 @@
     function editRecord(index) {
       const record = list[index];
       
-      // استخراج القيم
+      // تعبئة الحقول بالبيانات
       document.getElementById('nationalId').value = record.nationalId;
       document.getElementById('fullName').value = record.fullName;
       document.getElementById('phone').value = record.phone;
@@ -533,22 +533,23 @@
       document.getElementById('dob').value = record.dob;
       document.getElementById('serviceType').value = record.serviceType;
       document.getElementById('note').value = record.note;
+      document.getElementById('addedDate').value = record.addedDate; // الآن يمكن تعديله
       document.getElementById('amount').value = record.amount;
       document.getElementById('care4uPay').value = record.care4uPay;
       document.getElementById('thaatPay').value = record.thaatPay;
       
-      // حفظ فهرس السجل للتعديل لاحقًا
+      // حفظ الفهرس للتعديل
       const editIndex = index;
       
-      // تغيير نص الزر ووظيفته
+      // تغيير زر الإرسال إلى "تحديث"
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.textContent = currentLang === 'ar' ? 'تحديث' : 'Update';
       
-      // إزالة أي معالجات سابقة
+      // استبدال الزر لمنع التكرار
       const newSubmitBtn = submitBtn.cloneNode(true);
       submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
       
-      // إضافة معالج جديد
+      // إضافة وظيفة التحديث
       newSubmitBtn.onclick = function(e) {
         e.preventDefault();
         const formData = new FormData(form);
@@ -556,7 +557,7 @@
         data.amount = parseFloat(data.amount || 0);
         data.care4uPay = parseFloat(data.care4uPay || 0);
         data.thaatPay = parseFloat(data.thaatPay || 0);
-        data.addedDate = record.addedDate; // الحفاظ على تاريخ الإضافة الأصلي
+        data.addedDate = document.getElementById('addedDate').value; // استخدام التاريخ المعدل
         
         // تحديث السجل
         list[editIndex] = data;
@@ -565,7 +566,7 @@
         
         // إعادة تعيين النموذج والزر
         form.reset();
-        addedDateInput.value = getToday();
+        document.getElementById('addedDate').value = getToday();
         newSubmitBtn.textContent = currentLang === 'ar' ? 'إضافة' : 'Add';
         newSubmitBtn.onclick = function(e) {
           e.preventDefault();
@@ -574,12 +575,12 @@
           data.amount = parseFloat(data.amount || 0);
           data.care4uPay = parseFloat(data.care4uPay || 0);
           data.thaatPay = parseFloat(data.thaatPay || 0);
-          data.addedDate = getToday();
+          data.addedDate = document.getElementById('addedDate').value;
           list.push(data);
           saveToLocalStorage();
           render();
           form.reset();
-          addedDateInput.value = getToday();
+          document.getElementById('addedDate').value = getToday();
         };
       };
     }
@@ -602,7 +603,7 @@
       
       let filteredList = list;
       
-      // تطبيق فلترة الاسم
+      // تصفية حسب الاسم
       if (nameFilter) {
         filteredList = filteredList.filter(item => 
           item.fullName.toLowerCase().includes(nameFilter) ||
@@ -610,13 +611,13 @@
         );
       }
       
-      // تطبيق فلترة التاريخ
+      // تصفية حسب التاريخ
       if (dateFrom) {
         filteredList = filteredList.filter(item => item.addedDate >= dateFrom);
       }
       
       if (dateTo) {
-        filteredList = filteredList.filter(item => item.addedData <= dateTo);
+        filteredList = filteredList.filter(item => item.addedDate <= dateTo);
       }
       
       renderFiltered(filteredList);
@@ -630,7 +631,7 @@
       render();
     }
 
-    // عرض البيانات المفلترة
+    // عرض البيانات (مفلترة أو كاملة)
     function renderFiltered(filteredList) {
       tableBody.innerHTML = '';
       let total = 0, careTotal = 0, thaatTotal = 0;
@@ -675,21 +676,16 @@
       totalCare4uEl.textContent = careTotal.toFixed(2);
       totalThaatEl.textContent = thaatTotal.toFixed(2);
       
-      // الحساب الصحيح للرصيد المستحق
-      // الرصيد المستحق = المجموع - المبالغ المدفوعة في CARE4U
+      // حساب الرصيد المستحق
       const balance = total - careTotal;
       balanceEl.textContent = balance.toFixed(2);
       
-      // تغيير اللون حسب القيمة
+      // تلوين الرصيد
       balanceEl.className = 'highlight';
       if (balance > 0) {
-        balanceEl.classList.add('positive'); // موجب = أموال مطلوبة منك (اللون الأخضر)
-        balanceEl.classList.remove('negative');
+        balanceEl.classList.add('positive');
       } else if (balance < 0) {
-        balanceEl.classList.add('negative'); // سالب = أموال مطلوبة منك (اللون الأحمر)
-        balanceEl.classList.remove('positive');
-      } else {
-        balanceEl.classList.remove('positive', 'negative');
+        balanceEl.classList.add('negative');
       }
     }
 
@@ -697,14 +693,14 @@
       renderFiltered(list);
     }
 
-    // إضافة دعم للطباعة
+    // الطباعة
     printBtn.addEventListener('click', () => {
       window.print();
     });
 
-    // إضافة دعم لتصدير PDF (بدون مكتبات خارجية)
+    // تصدير PDF
     pdfBtn.addEventListener('click', () => {
-      alert('For PDF export, you need to install jspdf library. This demo works only in full environment.');
+      alert('لتصدير PDF، يرجى تثبيت مكتبة jspdf.');
     });
 
     // تغيير اللغة
@@ -716,14 +712,12 @@
     // أحداث الفلترة
     applyFilterBtn.addEventListener('click', applyFilter);
     clearFilterBtn.addEventListener('click', clearFilter);
-    
-    // تطبيق الفلترة عند كتابة اسم العميل
     filterName.addEventListener('input', applyFilter);
 
     // تحميل البيانات عند بدء التشغيل
     document.addEventListener('DOMContentLoaded', () => {
-      loadFromLocalStorage(); // تحميل البيانات
-      updateLanguage(); // تطبيق اللغة الافتراضية
+      loadFromLocalStorage();
+      updateLanguage();
     });
   </script>
 </body>
