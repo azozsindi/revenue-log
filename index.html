@@ -101,7 +101,7 @@
     
     /* تنسيقات الطباعة */
     @media print {
-      .actions, #entryForm, #pdfBtn, .filter-section, .delete-section, .summary {
+      .actions, #entryForm, #pdfBtn, .filter-section, .delete-section {
         display: none !important;
       }
       .container {
@@ -133,6 +133,13 @@
       }
       header {
         margin-bottom: 15px;
+      }
+      .summary {
+        display: flex !important;
+        font-size: 12px;
+        margin-top: 10px;
+        justify-content: flex-end;
+        gap: 30px;
       }
     }
   </style>
@@ -178,10 +185,10 @@
           <input type="date" id="filterDateTo" />
         </div>
         <div class="field" style="align-self:end;">
-          <button id="applyFilterBtn" type="button" id="btnApplyFilter">تطبيق الفلترة</button>
+          <button id="applyFilterBtn" type="button">تطبيق الفلترة</button>
         </div>
         <div class="field" style="align-self:end;">
-          <button id="clearFilterBtn" type="button" id="btnClearFilter">إعادة تعيين</button>
+          <button id="clearFilterBtn" type="button">إعادة تعيين</button>
         </div>
       </div>
     </div>
@@ -190,7 +197,7 @@
     <div class="delete-section">
       <h3 id="deleteTitle">حذف البيانات</h3>
       <p id="deleteInfo">هل تريد حذف جميع السجلات؟</p>
-      <button id="deleteAllBtn" type="button" id="btnDeleteAll">حذف الكل</button>
+      <button id="deleteAllBtn" type="button">حذف الكل</button>
     </div>
 
     <section class="card">
@@ -530,14 +537,20 @@
       document.getElementById('care4uPay').value = record.care4uPay;
       document.getElementById('thaatPay').value = record.thaatPay;
       
-      // حذف السجل الحالي من القائمة
-      list.splice(index, 1);
-      saveToLocalStorage();
+      // حفظ فهرس السجل للتعديل لاحقًا
+      const editIndex = index;
       
-      // تحديث الزر لتحويله إلى "تحديث"
-      document.getElementById('submitBtn').textContent = translations[currentLang].submitBtn;
-      document.getElementById('submitBtn').onclick = function() {
-        // الحصول على القيم الجديدة
+      // تغيير نص الزر ووظيفته
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = currentLang === 'ar' ? 'تحديث' : 'Update';
+      
+      // إزالة أي معالجات سابقة
+      const newSubmitBtn = submitBtn.cloneNode(true);
+      submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+      
+      // إضافة معالج جديد
+      newSubmitBtn.onclick = function(e) {
+        e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.amount = parseFloat(data.amount || 0);
@@ -545,16 +558,16 @@
         data.thaatPay = parseFloat(data.thaatPay || 0);
         data.addedDate = record.addedDate; // الحفاظ على تاريخ الإضافة الأصلي
         
-        // إضافة السجل المُحدّث
-        list.splice(index, 0, data);
+        // تحديث السجل
+        list[editIndex] = data;
         saveToLocalStorage();
         render();
         
         // إعادة تعيين النموذج والزر
         form.reset();
         addedDateInput.value = getToday();
-        document.getElementById('submitBtn').textContent = translations[currentLang].submitBtn;
-        document.getElementById('submitBtn').onclick = function(e) {
+        newSubmitBtn.textContent = currentLang === 'ar' ? 'إضافة' : 'Add';
+        newSubmitBtn.onclick = function(e) {
           e.preventDefault();
           const formData = new FormData(form);
           const data = Object.fromEntries(formData.entries());
@@ -603,7 +616,7 @@
       }
       
       if (dateTo) {
-        filteredList = filteredList.filter(item => item.addedDate <= dateTo);
+        filteredList = filteredList.filter(item => item.addedData <= dateTo);
       }
       
       renderFiltered(filteredList);
