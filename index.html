@@ -64,7 +64,6 @@ tr:nth-child(even){background:#faf8ff}
   .print-footer{text-align:center;margin-top:15px;font-size:10px;color:#6b7280;border-top:1px solid #ddd;padding-top:5px;display:block}
 }
 
-/* small niceties */
 @media (max-width:600px){
   .summary{flex-direction:column;align-items:flex-end}
 }
@@ -73,10 +72,8 @@ tr:nth-child(even){background:#faf8ff}
 </head>
 <body>
 
-<!-- toast -->
 <div class="toast" id="toast">تم الحفظ</div>
 
-<!-- print header (hidden normally, shown on print) -->
 <div class="print-header" style="display:none">
   <h1 id="printTitle">سجل إيرادات ذات قروب</h1>
   <p><strong>CARE4UKSA</strong> | الرقم الضريبي: 312062312200003 | التواصل: 920015357</p>
@@ -117,7 +114,6 @@ tr:nth-child(even){background:#faf8ff}
     </div>
   </div>
 
-  <!-- form card -->
   <div class="card">
     <h2 id="formTitle">إضافة سجل جديد</h2>
     <form id="entryForm">
@@ -125,49 +121,40 @@ tr:nth-child(even){background:#faf8ff}
         <label for="fullName" id="lblFullName">الاسم</label>
         <input type="text" id="fullName" required />
       </div>
-
       <div class="field">
         <label for="nationalId" id="lblNationalId">رقم الهوية</label>
         <input type="text" id="nationalId" required />
       </div>
-
       <div class="field">
         <label for="amount" id="lblAmount">المبلغ</label>
         <input type="number" id="amount" required step="0.01" min="0.01" />
       </div>
-
       <div class="field">
         <label for="care4uPay" id="lblCare4uPay">الدفع في CARE4U</label>
         <input type="number" id="care4uPay" step="0.01" min="0" />
       </div>
-
       <div class="field">
         <label for="serviceType" id="lblServiceType">نوع الخدمة</label>
         <input type="text" id="serviceType" />
       </div>
-
       <div class="field">
         <label for="extraServices" id="lblExtraServices">خدمات إضافية</label>
         <input type="text" id="extraServices" />
       </div>
-
       <div class="field">
         <label for="addedDate" id="lblAddedDate">تاريخ الإضافة</label>
         <input type="date" id="addedDate" required />
       </div>
-
       <div class="field" style="grid-column:span 2">
         <label for="note" id="lblNote">ملاحظات</label>
         <input type="text" id="note" />
       </div>
-
       <div class="field">
         <button type="submit" id="submitBtn">➕ إضافة</button>
       </div>
     </form>
   </div>
 
-  <!-- table card -->
   <div class="card">
     <h2 id="tableTitle">سجلات الإيرادات</h2>
     <input type="text" id="searchBox" placeholder="ابحث عن اسم أو رقم هوية..." />
@@ -183,6 +170,7 @@ tr:nth-child(even){background:#faf8ff}
           <th id="thServiceType">نوع الخدمة</th>
           <th id="thExtraServices">خدمات إضافية</th>
           <th id="thAddedDate">تاريخ الإضافة</th>
+          <th id="thNote">ملاحظات</th>
           <th id="thActions" class="no-print">الإجراءات</th>
         </tr>
       </thead>
@@ -197,13 +185,11 @@ tr:nth-child(even){background:#faf8ff}
   </div>
 </div>
 
-<!-- print footer -->
 <div class="print-footer" style="display:none">
   <p>تم إنشاء هذا التقرير بواسطة نظام إدارة الإيرادات - CARE4UKSA © <span id="footerYear"></span></p>
 </div>
 
 <script>
-// عناصر
 const form = document.getElementById('entryForm');
 const tableBody = document.querySelector('#entriesTable tbody');
 const toast = document.getElementById('toast');
@@ -219,34 +205,27 @@ const totalDisplayEl = document.getElementById('totalDisplay');
 const care4uDisplayEl = document.getElementById('care4uDisplay');
 const balanceDisplayEl = document.getElementById('balanceDisplay');
 
-// ترجمة
 const trans = {
-  ar:{
-    headerSubtitle:'نظام إدارة الإيرادات - ذات قروب', formTitle:'إضافة سجل جديد', tableTitle:'سجلات الإيرادات',
-    lblFullName:'الاسم', lblNationalId:'رقم الهوية', lblAmount:'المبلغ', lblCare4uPay:'الدفع في CARE4U',
-    lblServiceType:'نوع الخدمة', lblExtraServices:'خدمات إضافية', lblAddedDate:'تاريخ الإضافة', lblNote:'ملاحظات',
-    submitBtn:'➕ إضافة', updateBtn:'🔄 تحديث',
-    thFullName:'الاسم', thNationalId:'رقم الهوية', thAmount:'المبلغ', thCare4uPay:'الدفع في CARE4U',
-    thServiceType:'نوع الخدمة', thExtraServices:'خدمات إضافية', thAddedDate:'تاريخ الإضافة', thActions:'الإجراءات',
-    actionEdit:'تعديل', actionDelete:'حذف',
-    lblTotalRecords:'إجمالي السجلات', lblTotalAmount:'إجمالي الإيرادات', lblTotalPaid:'المدفوع (CARE4U)', lblBalance:'الرصيد المستحق',
-    lblSummaryTotal:'الإجمالي:', lblSummaryPaid:'المدفوع:', lblSummaryBalance:'الرصيد:',
-    toastAdd:'تمت الإضافة بنجاح!', toastUpdate:'تم التحديث بنجاح!', toastDelete:'تم الحذف بنجاح!',
-    confirmDelete:'هل تريد الحذف؟', searchPlaceholder:'ابحث عن اسم أو رقم هوية أو خدمة...'
-  },
-  en:{
-    headerSubtitle:'Revenue Management - That Group', formTitle:'Add New Record', tableTitle:'Revenue Records',
-    lblFullName:'Name', lblNationalId:'National ID', lblAmount:'Amount', lblCare4uPay:'Paid at CARE4U',
-    lblServiceType:'Service Type', lblExtraServices:'Extra Services', lblAddedDate:'Added Date', lblNote:'Notes',
-    submitBtn:'➕ Add', updateBtn:'🔄 Update',
-    thFullName:'Name', thNationalId:'National ID', thAmount:'Amount', thCare4uPay:'Paid at CARE4U',
-    thServiceType:'Service Type', thExtraServices:'Extra Services', thAddedDate:'Added Date', thActions:'Actions',
-    actionEdit:'Edit', actionDelete:'Delete',
-    lblTotalRecords:'Total Records', lblTotalAmount:'Total Revenue', lblTotalPaid:'Paid (CARE4U)', lblBalance:'Balance Due',
-    lblSummaryTotal:'Total:', lblSummaryPaid:'Paid:', lblSummaryBalance:'Balance:',
-    toastAdd:'Added successfully!', toastUpdate:'Updated successfully!', toastDelete:'Deleted successfully!',
-    confirmDelete:'Are you sure?', searchPlaceholder:'Search by name, ID, or service...'
-  }
+  ar:{headerSubtitle:'نظام إدارة الإيرادات - ذات قروب',formTitle:'إضافة سجل جديد',tableTitle:'سجلات الإيرادات',
+    lblFullName:'الاسم',lblNationalId:'رقم الهوية',lblAmount:'المبلغ',lblCare4uPay:'الدفع في CARE4U',
+    lblServiceType:'نوع الخدمة',lblExtraServices:'خدمات إضافية',lblAddedDate:'تاريخ الإضافة',lblNote:'ملاحظات',
+    submitBtn:'➕ إضافة',updateBtn:'🔄 تحديث',thFullName:'الاسم',thNationalId:'رقم الهوية',thAmount:'المبلغ',thCare4uPay:'الدفع في CARE4U',
+    thServiceType:'نوع الخدمة',thExtraServices:'خدمات إضافية',thAddedDate:'تاريخ الإضافة',thNote:'ملاحظات',thActions:'الإجراءات',
+    actionEdit:'تعديل',actionDelete:'حذف',
+    lblTotalRecords:'إجمالي السجلات',lblTotalAmount:'إجمالي الإيرادات',lblTotalPaid:'المدفوع (CARE4U)',lblBalance:'الرصيد المستحق',
+    lblSummaryTotal:'الإجمالي:',lblSummaryPaid:'المدفوع:',lblSummaryBalance:'الرصيد:',
+    toastAdd:'تمت الإضافة بنجاح!',toastUpdate:'تم التحديث بنجاح!',toastDelete:'تم الحذف بنجاح!',
+    confirmDelete:'هل تريد الحذف؟',searchPlaceholder:'ابحث عن اسم أو رقم هوية أو خدمة...'},
+  en:{headerSubtitle:'Revenue Management - That Group',formTitle:'Add New Record',tableTitle:'Revenue Records',
+    lblFullName:'Name',lblNationalId:'National ID',lblAmount:'Amount',lblCare4uPay:'Paid at CARE4U',
+    lblServiceType:'Service Type',lblExtraServices:'Extra Services',lblAddedDate:'Added Date',lblNote:'Notes',
+    submitBtn:'➕ Add',updateBtn:'🔄 Update',thFullName:'Name',thNationalId:'National ID',thAmount:'Amount',thCare4uPay:'Paid at CARE4U',
+    thServiceType:'Service Type',thExtraServices:'Extra Services',thAddedDate:'Added Date',thNote:'Notes',thActions:'Actions',
+    actionEdit:'Edit',actionDelete:'Delete',
+    lblTotalRecords:'Total Records',lblTotalAmount:'Total Revenue',lblTotalPaid:'Paid (CARE4U)',lblBalance:'Balance Due',
+    lblSummaryTotal:'Total:',lblSummaryPaid:'Paid:',lblSummaryBalance:'Balance:',
+    toastAdd:'Added successfully!',toastUpdate:'Updated successfully!',toastDelete:'Deleted successfully!',
+    confirmDelete:'Are you sure?',searchPlaceholder:'Search by name, ID, or service...'}
 };
 
 let list = [];
@@ -254,133 +233,113 @@ let currentLang = 'ar';
 let editMode = false;
 let editIndex = null;
 
-// عرض رسالة قصيرة
 function showToast(msg){
   toast.textContent = msg;
-  toast.className = 'toast show';
-  setTimeout(()=> toast.className = 'toast', 3000);
+  toast.className='toast show';
+  setTimeout(()=>toast.className='toast',3000);
 }
 
-// تحديث اللغة (يبحث عن عناصر بالـ id المطابقة لمفاتيح الترجمة)
 function updateLang(){
   const t = trans[currentLang];
   Object.keys(t).forEach(key=>{
-    const el = document.getElementById(key);
-    if(el) el.textContent = t[key];
+    const el=document.getElementById(key);
+    if(el) el.textContent=t[key];
   });
-  document.getElementById('submitBtn').textContent = editMode ? t.updateBtn : t.submitBtn;
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  searchBox.placeholder = t.searchPlaceholder;
+  document.getElementById('submitBtn').textContent=editMode?t.updateBtn:t.submitBtn;
+  document.documentElement.lang=currentLang;
+  document.documentElement.dir=currentLang==='ar'?'rtl':'ltr';
+  searchBox.placeholder=t.searchPlaceholder;
 }
 
-// تعيين تاريخ اليوم
-addedDateInput.value = new Date().toISOString().split('T')[0];
+addedDateInput.value=new Date().toISOString().split('T')[0];
 
-// تحميل وحفظ
 function loadData(){
-  try{
-    const saved = localStorage.getItem('revenueData');
-    if(saved) list = JSON.parse(saved);
-  } catch(e){ list = []; }
+  try{const saved=localStorage.getItem('revenueData'); if(saved) list=JSON.parse(saved);} catch(e){list=[];}
   render();
 }
-function saveData(){ localStorage.setItem('revenueData', JSON.stringify(list)); }
+function saveData(){localStorage.setItem('revenueData',JSON.stringify(list));}
 
-// إضافة / تحديث
-form.addEventListener('submit', e=>{
+form.addEventListener('submit',e=>{
   e.preventDefault();
-  const amount = parseFloat(document.getElementById('amount').value) || 0;
-  const care4uPay = parseFloat(document.getElementById('care4uPay').value) || 0;
-  if(care4uPay > amount){ showToast("⚠️ المدفوع لا يمكن أن يتجاوز المبلغ الأصلي!"); return; }
-
-  const data = {
-    fullName: document.getElementById('fullName').value.trim(),
-    nationalId: document.getElementById('nationalId').value.trim(),
-    amount: amount,
-    care4uPay: care4uPay,
-    serviceType: document.getElementById('serviceType').value.trim(),
-    extraServices: document.getElementById('extraServices').value.trim(),
-    addedDate: document.getElementById('addedDate').value,
-    note: document.getElementById('note').value.trim()
+  const amount=parseFloat(document.getElementById('amount').value)||0;
+  const care4uPay=parseFloat(document.getElementById('care4uPay').value)||0;
+  if(care4uPay>amount){showToast("⚠️ المدفوع لا يمكن أن يتجاوز المبلغ الأصلي!");return;}
+  const data={
+    fullName:document.getElementById('fullName').value.trim(),
+    nationalId:document.getElementById('nationalId').value.trim(),
+    amount:amount,
+    care4uPay:care4uPay,
+    serviceType:document.getElementById('serviceType').value.trim(),
+    extraServices:document.getElementById('extraServices').value.trim(),
+    addedDate:document.getElementById('addedDate').value,
+    note:document.getElementById('note').value.trim()
   };
-
-  if(!data.fullName || !data.nationalId){ showToast("⚠️ الاسم ورقم الهوية مطلوبان!"); return; }
-
+  if(!data.fullName||!data.nationalId){showToast("⚠️ الاسم ورقم الهوية مطلوبان!");return;}
   if(editMode){
-    list[editIndex] = data;
+    list[editIndex]=data;
     showToast(trans[currentLang].toastUpdate);
-    editMode = false; editIndex = null;
-  } else {
-    list.push(data);
-    showToast(trans[currentLang].toastAdd);
-  }
-
+    editMode=false; editIndex=null;
+  } else {list.push(data); showToast(trans[currentLang].toastAdd);}
   saveData();
   render();
   form.reset();
-  addedDateInput.value = new Date().toISOString().split('T')[0];
+  addedDateInput.value=new Date().toISOString().split('T')[0];
 });
 
-// تعديل
-window.editRecord = function(index){
-  const item = list[index];
-  if(!item) return;
-  document.getElementById('fullName').value = item.fullName;
-  document.getElementById('nationalId').value = item.nationalId;
-  document.getElementById('amount').value = item.amount;
-  document.getElementById('care4uPay').value = item.care4uPay === 0 ? '' : item.care4uPay;
-  document.getElementById('serviceType').value = item.serviceType;
-  document.getElementById('extraServices').value = item.extraServices;
-  document.getElementById('addedDate').value = item.addedDate;
-  document.getElementById('note').value = item.note;
-  editMode = true;
-  editIndex = index;
-  document.getElementById('submitBtn').textContent = trans[currentLang].updateBtn;
+function editRecord(index){
+  const item=list[index]; if(!item)return;
+  document.getElementById('fullName').value=item.fullName;
+  document.getElementById('nationalId').value=item.nationalId;
+  document.getElementById('amount').value=item.amount;
+  document.getElementById('care4uPay').value=item.care4uPay===0?'':item.care4uPay;
+  document.getElementById('serviceType').value=item.serviceType;
+  document.getElementById('extraServices').value=item.extraServices;
+  document.getElementById('addedDate').value=item.addedDate;
+  document.getElementById('note').value=item.note;
+  editMode=true; editIndex=index;
+  document.getElementById('submitBtn').textContent=trans[currentLang].updateBtn;
   window.scrollTo(0,0);
-};
+}
 
-// حذف
-window.deleteRecord = function(index){
+function deleteRecord(index){
   if(confirm(trans[currentLang].confirmDelete)){
     list.splice(index,1);
     saveData();
     render();
     showToast(trans[currentLang].toastDelete);
   }
-};
+}
 
-// فلترة (بحث يشمل الاسم، رقم الهوية، نوع الخدمة، والخدمات الإضافية)
 function filterData(){
-  const term = searchBox.value.toLowerCase().trim();
+  const term=searchBox.value.toLowerCase().trim();
   render(term);
 }
 
-// عرض البيانات
 function render(searchTerm=''){
-  tableBody.innerHTML = '';
-  let total = 0, careTotal = 0;
-  const sortedList = [...list].sort((a,b)=> new Date(b.addedDate) - new Date(a.addedDate));
-  const filteredList = searchTerm ? sortedList.filter(item =>
-    item.fullName.toLowerCase().includes(searchTerm) ||
-    item.nationalId.includes(searchTerm) ||
-    (item.serviceType || '').toLowerCase().includes(searchTerm) ||
-    (item.extraServices || '').toLowerCase().includes(searchTerm)
-  ) : sortedList;
+  tableBody.innerHTML='';
+  let total=0, careTotal=0;
+  const sortedList=[...list].sort((a,b)=>new Date(b.addedDate)-new Date(a.addedDate));
+  const filteredList=searchTerm?sortedList.filter(item=>
+    item.fullName.toLowerCase().includes(searchTerm)||
+    item.nationalId.includes(searchTerm)||
+    (item.serviceType||'').toLowerCase().includes(searchTerm)||
+    (item.extraServices||'').toLowerCase().includes(searchTerm)
+  ):sortedList;
 
   filteredList.forEach((item,i)=>{
-    total += Number(item.amount || 0);
-    careTotal += Number(item.care4uPay || 0);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    total+=Number(item.amount||0);
+    careTotal+=Number(item.care4uPay||0);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
       <td>${i+1}</td>
       <td>${item.fullName}</td>
       <td>${item.nationalId}</td>
-      <td>${Number(item.amount || 0).toFixed(2)}</td>
-      <td>${Number(item.care4uPay || 0) === 0 ? '' : Number(item.care4uPay).toFixed(2)}</td>
-      <td>${item.serviceType || ''}</td>
-      <td>${item.extraServices || ''}</td>
+      <td>${Number(item.amount||0).toFixed(2)}</td>
+      <td>${Number(item.care4uPay||0)===0?'':Number(item.care4uPay).toFixed(2)}</td>
+      <td>${item.serviceType||''}</td>
+      <td>${item.extraServices||''}</td>
       <td>${item.addedDate}</td>
+      <td>${item.note||''}</td>
       <td class="no-print">
         <button onclick="editRecord(${list.indexOf(item)})" class="btn-sm btn-edit">${trans[currentLang].actionEdit}</button>
         <button onclick="deleteRecord(${list.indexOf(item)})" class="btn-sm btn-delete">${trans[currentLang].actionDelete}</button>
@@ -389,45 +348,42 @@ function render(searchTerm=''){
     tableBody.appendChild(tr);
   });
 
-  const balance = total - careTotal;
-  totalRecordsEl.textContent = filteredList.length;
-  totalAmountEl.textContent = total.toFixed(2);
-  totalCare4uEl.textContent = careTotal.toFixed(2);
-  balanceEl.textContent = balance.toFixed(2);
+  const balance=total-careTotal;
+  totalRecordsEl.textContent=filteredList.length;
+  totalAmountEl.textContent=total.toFixed(2);
+  totalCare4uEl.textContent=careTotal.toFixed(2);
+  balanceEl.textContent=balance.toFixed(2);
 
-  totalDisplayEl.textContent = total.toFixed(2) + ' ر.س';
-  care4uDisplayEl.textContent = careTotal.toFixed(2) + ' ر.س';
-  balanceDisplayEl.textContent = balance.toFixed(2) + ' ر.س';
+  totalDisplayEl.textContent=total.toFixed(2)+' ر.س';
+  care4uDisplayEl.textContent=careTotal.toFixed(2)+' ر.س';
+  balanceDisplayEl.textContent=balance.toFixed(2)+' ر.س';
 
-  const now = new Date();
-  document.getElementById('printDate').textContent = now.toLocaleDateString('ar-SA');
-  document.getElementById('footerYear').textContent = now.getFullYear();
+  const now=new Date();
+  document.getElementById('printDate').textContent=now.toLocaleDateString('ar-SA');
+  document.getElementById('footerYear').textContent=now.getFullYear();
 }
 
-// طباعة: إظهار رأس وتذييل الطباعة وإخفاء الباقي
-document.getElementById('printBtn').onclick = () => {
-  document.querySelector('.print-header').style.display = 'block';
-  document.querySelector('.print-footer').style.display = 'block';
-  document.querySelector('header').style.display = 'none';
-  document.querySelector('.stats').style.display = 'none';
-  document.querySelectorAll('.card')[0].style.display = 'none';
-  document.getElementById('searchBox').style.display = 'none';
+document.getElementById('printBtn').onclick=()=>{
+  document.querySelector('.print-header').style.display='block';
+  document.querySelector('.print-footer').style.display='block';
+  document.querySelector('header').style.display='none';
+  document.querySelector('.stats').style.display='none';
+  document.querySelectorAll('.card')[0].style.display='none';
+  document.getElementById('searchBox').style.display='none';
   window.print();
   setTimeout(()=>{
-    document.querySelector('.print-header').style.display = 'none';
-    document.querySelector('.print-footer').style.display = 'none';
-    document.querySelector('header').style.display = 'flex';
-    document.querySelector('.stats').style.display = 'grid';
-    document.querySelectorAll('.card')[0].style.display = 'block';
-    document.getElementById('searchBox').style.display = 'block';
+    document.querySelector('.print-header').style.display='none';
+    document.querySelector('.print-footer').style.display='none';
+    document.querySelector('header').style.display='flex';
+    document.querySelector('.stats').style.display='grid';
+    document.querySelectorAll('.card')[0].style.display='block';
+    document.getElementById('searchBox').style.display='block';
   },500);
 };
 
-// أحداث
-langSelect.addEventListener('change', ()=>{ currentLang = langSelect.value; updateLang(); });
-searchBox.addEventListener('input', filterData);
-document.addEventListener('DOMContentLoaded', ()=>{ loadData(); updateLang(); });
-
+langSelect.addEventListener('change',()=>{currentLang=langSelect.value;updateLang();});
+searchBox.addEventListener('input',filterData);
+document.addEventListener('DOMContentLoaded',()=>{loadData();updateLang();});
 </script>
 </body>
 </html>
